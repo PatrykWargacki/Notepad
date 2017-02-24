@@ -1,9 +1,12 @@
 package util;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.util.Scanner;
 
 import javafx.stage.FileChooser;
@@ -31,7 +34,7 @@ public class FileHandler {
 		Scanner scanner;
 		Data data = new Data();
 		try {
-			scanner = new Scanner(file);
+			scanner = new Scanner(file, "UTF-8");
 		
 			if(scanner.hasNextLine()){
 				data.setTitle(scanner.nextLine());
@@ -48,17 +51,24 @@ public class FileHandler {
 	}
 	
 	public void save(Data data){
-		fileChooser.setTitle("Save Memo");
-		File file = fileChooser.showSaveDialog(ownerWindow);
-		PrintWriter printWriter;
+		File file;
+		if(currentFile == null){
+			fileChooser.setTitle("Save Memo");
+			file = fileChooser.showSaveDialog(ownerWindow);
+		}else{
+			file = currentFile;
+		}
 		try {
 			if(!file.exists()){
 				file.createNewFile();
 			}
-			printWriter = new PrintWriter(file);
-			printWriter.println(data.getTitle());
-			printWriter.println(data.getText());
-			printWriter.close();
+			
+			Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), "UTF8"));
+			
+			writer.append(data.getTitle());
+			writer.append(data.getText());
+			writer.flush();
+			writer.close();
 			currentFile = file;
 		} catch (IOException e) {
 			e.printStackTrace();
